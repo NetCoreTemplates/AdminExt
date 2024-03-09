@@ -1,0 +1,75 @@
+<header class="border-b border-gray-200 dark:border-gray-600 pr-3">
+    <div class="flex flex-wrap items-center">
+        <div class="flex-shrink flex-grow-0">
+            <div class="cursor-pointer">
+                <a hx-boost="true" class="navbar-brand flex items-center" href="/">
+                    <img class="ml-2 w-12 h-12" src="/img/logo.svg" alt="MyApp logo">
+                    <span class="text-2xl font-semibold">My App</span>
+                </a>
+            </div>
+        </div>
+        <div class="flex flex-grow flex-shrink flex-nowrap justify-end items-center">
+            <nav hx-boost="true" class="relative flex flex-grow leading-6 font-semibold text-slate-700 dark:text-slate-200">
+                <ul class="flex flex-wrap items-center justify-end w-full m-0">
+                    @{
+                        var isAuthenticated = await Html.IsAuthenticatedAsync();
+                        var isAdmin = await Html.HasRoleAsync("Admin");
+                        void RenderNavLink(string href, string childContent)
+                        {
+                            <li class="relative flex flex-wrap just-fu-start m-0">
+                                <a href="@href" class="@Html.ClassNames("p-4 flex items-center justify-start mw-full hover:text-sky-500 dark:hover:text-sky-400", 
+                                    Html.MatchesPath(href) ? "text-blue-700 dark:text-blue-300" : "")">
+                                    @Html.Raw(childContent)
+                                </a>
+                            </li>
+                        }
+                        void RenderLinkButton(string href, string childContent, string? cls = null)
+                        {
+                            <li class="relative flex flex-wrap just-fu-start m-0">
+                                <a href="@href" class="mx-2 @(cls ?? Css.SecondaryButton)">
+                                    @Html.Raw(childContent)
+                                </a>
+                            </li>
+                        }
+
+                        RenderNavLink("/Blog", "Blog");
+                        RenderNavLink("/secure/bookings", "Bookings");
+                        if (isAdmin)
+                            RenderNavLink("/admin", "Admin");
+                        RenderNavLink("/privacy", "Privacy");
+                        if (!isAuthenticated)
+                        {
+                            RenderLinkButton("/Identity/Account/Login", "Sign In");
+                        }
+                        else
+                        {
+                            <li>
+                                <div class="mx-3 relative">
+                                    <div>
+                                        <a href="/Identity/Account/Manage"
+                                           class="max-w-xs bg-white dark:bg-black rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 lg:p-2 lg:rounded-md lg:hover:bg-gray-50 dark:lg:hover:bg-gray-900 dark:ring-offset-black" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                            <img class="h-8 w-8 rounded-full" src="@User.GetPicture()" alt="">
+                                            <span class="ml-3 text-gray-700 dark:text-gray-300 text-sm font-medium lg:block">
+                                                <span class="sr-only">Open user menu for </span>
+                                                @User.GetDisplayName()
+                                            </span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="relative flex flex-wrap just-fu-start mr-2">
+                                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                                    <button type="submit" class="mx-2 @Css.SecondaryButton">Sign Out</button>
+                                </form>
+                            </li>
+                        }
+                    }
+                    <li class="relative flex flex-wrap just-fu-start ml-2">
+                        @await Html.PartialAsync("DarkModeToggle")
+                    </li>
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+</header>
